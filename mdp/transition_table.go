@@ -5,6 +5,7 @@ type TransitionTableEntry interface {
 	Set(Action, float32, State)
 	Remove(Action)
 	RemoveTransition(nextState State)
+	String(prefix string) string
 }
 
 type transitionTableEntry struct {
@@ -34,10 +35,20 @@ func (t *transitionTableEntry) RemoveTransition(nextState State) {
 	}
 }
 
+func (t * transitionTableEntry) String(prefix string) string {
+	res := "{\n"
+	for action, transition := range t.entry {
+		res += prefix + "	" + action.String() + ": " + transition.String() + ",\n"
+	}
+	res = res[:len(res) - 2]
+	res += "\n" + prefix + "}"
+	return res
+}
+
 func NewTransitionTableEntry(entry *map[Action]Transition) TransitionTableEntry {
 	t := &transitionTableEntry{}
 	if entry == nil {
-		t.entry = *new(map[Action]Transition)
+		t.entry = make(map[Action]Transition)
 	} else {
 		t.entry = *entry
 	}
@@ -50,6 +61,7 @@ type TransitionTable interface {
 	Set(State, TransitionTableEntry)
 	Remove(State)
 	Update(state State, action Action, probability float32, nextState State)
+	String(prefix string) string
 }
 
 type transitionTable struct {
@@ -75,9 +87,19 @@ func (t *transitionTable) Remove(state State) {
 	delete(t.table, state)
 }
 
+func (t * transitionTable) String(prefix string) string {
+	res := "{\n"
+	for state, entry := range t.table {
+		res += prefix + "	" + state.String() + ": " + entry.String("		") + ",\n"
+	}
+	res = res[:len(res) - 2]
+	res += "\n" + prefix + "}"
+	return res
+}
+
 func NewTransitionTable(table *map[State]map[Action]Transition) TransitionTable {
 	t := &transitionTable{}
-	t.table = *new(map[State]TransitionTableEntry)
+	t.table = make(map[State]TransitionTableEntry)
 	if table != nil {
 		for state, entry := range *table {
 			t.table[state] = NewTransitionTableEntry(&entry)

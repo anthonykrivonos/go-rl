@@ -1,5 +1,7 @@
 package mdp
 
+import "fmt"
+
 type State interface {
 	Name() string
 	Index() int
@@ -31,7 +33,7 @@ func (s *state) Equals(other State) bool {
 }
 
 func (s *state) String() string {
-	return "S_" + string(s.index) + ": " + s.name
+	return "(S" + fmt.Sprint(s.index) + ": " + s.name + ")"
 }
 
 func NewState(name string, index int, terminal bool) State {
